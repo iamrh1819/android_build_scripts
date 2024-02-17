@@ -1,47 +1,44 @@
 #!/bin/bash
 
 set -e
-#Credit to Meghthedev for the initial script 
 
 # Initialize repo with specified manifest
-repo init --depth 1 -u https://github.com/LineageOS/android.git -b lineage-20.0 --git-lfs
+ repo init -u https://github.com/LineageOS/android.git -b lineage-20.0 --git-lfs
 
 # Run inside foss.crave.io devspace, in the project folder
 # Remove existing local_manifests
 crave run --no-patch -- "rm -rf .repo/local_manifests && \
-
 # Initialize repo with specified manifest
-repo init --depth 1 -u https://github.com/sounddrill31/plros_manifests.git -b lineage-20.0 --git-lfs && \
+repo init -u https://github.com/AfterLifePrjkt13/android_manifest.git -b LTS --depth 1 -g default,-mips,-darwin,-notdefault ;\
 
 # Clone local_manifests repository
-git clone https://github.com/sounddrill31/local_manifests --depth 1 -b plrOS-oxygen .repo/local_manifests && \
+git clone https://github.com/eurekadevelopment/local_manifests --depth 1 -b android-13 .repo/local_manifests ;\
+
+# Removals
 
 # Sync the repositories
-repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags && \ 
+repo sync -c -j$(nproc --all) --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync && \
 
-# Clone Cromite app
-rm -rf vendor/plros/prebuilt/apps/Cromite;
-git clone https://gitlab.com/plros-lab/android_packages_apps_Cromite.git vendor/plros/prebuilt/apps/Cromite && \
 
 # Set up build environment
+export ALLOW_MISSING_DEPENDENCIES=true ; \
 source build/envsetup.sh && \
 
 # Lunch configuration
-lunch lineage_oxygen-userdebug && \
+lunch afterlife_a10-userdebug ;\
 
-# Build the ROM
-rm -rf out/target/product/oxygen/ ; \
-mka bacon && \
-echo "Date and time:" && \
+croot ;\
+m afterlife ; \
+echo "Date and time:" ; \
 
 # Print out/build_date.txt
-cat out/build_date.txt; echo \
+cat out/build_date.txt; \
 
 # Print SHA256
 sha256sum out/target/product/*/*.zip"
 
 # Clean up
-rm -rf oxygen/
+rm -rf a10/*
 
 
 
@@ -52,8 +49,7 @@ crave pull out/target/product/*/*.zip
 crave pull out/target/product/*/*.img
 
 # Upload zips to Telegram
-telegram-upload --to sdreleases oxygen/*.zip oxygen/recovery.img
+telegram-upload --to raospr a10/*.zip
 
 #Upload to Github Releases
-#cd oxygen/
 #curl -sf https://raw.githubusercontent.com/Meghthedev/Releases/main/headless.sh | sh
